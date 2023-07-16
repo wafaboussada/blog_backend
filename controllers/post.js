@@ -42,9 +42,13 @@ exports.readOnePost = async (req, res) => {
 exports.updatePost = async (req, res) => {
     try {
         const postId = req.params.id;
-        const post = await Post.findByIdAndUpdate(postId,
-            { ...req.body }, { new: true });
-        res.status(200).json(post);
+        if (post.username === req.body.username) {
+            const post = await Post.findByIdAndUpdate(postId,
+                { ...req.body }, { new: true });
+            res.status(200).json(post);
+        } else {
+            res.status(500).json('not authorized !');
+        }
     } catch (err) {
         res.status(500).json(err);
     }
@@ -53,8 +57,14 @@ exports.updatePost = async (req, res) => {
 exports.deletePost = async (req, res) => {
     try {
         const postId = req.params.id;
-        await Post.findByIdAndDelete(postId);
-        res.status(200).json('post deleted successfully');
+        console.log('body username', req.body.username);
+        const post = await Post.findById(postId);
+        if (post.username === req.body.username) {
+            await Post.findByIdAndDelete(postId);
+            res.status(200).json('post deleted successfully');
+        } else {
+            res.status(500).json('not authorized !');
+        }
     } catch (err) {
         res.status(500).json(err);
     }
